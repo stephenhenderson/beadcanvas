@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Bead Canvas</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+</head>
+<body>
+    <title>Bead Canvas</title>
+    <h1>Aqua Bead Canvas</h1>
+    Select Colour:
+    <p>
+    <canvas id="colours" width="500" height="60" style="border:1px solid#000000;"></canvas>
+    <p></p>
+    Click Beads to Color In:
+    <p></p>
+    <canvas id="beads" width="500" height="500" style="border:1px solid#000000;"></canvas>
+    <p>
+    <button onclick="initBeads(); drawBeads();">Reset</button>
+    <script>
+        //
+        // Colour Picker
+        //
+        const colours = [
+            "red", "orange", "yellow", "green", "blue", "indigo", "violet", "black", "white"
+        ]
+        const colourCanvas = document.getElementById("colours");
+        const colourContext = colourCanvas.getContext("2d");
+        const colourRect = colourCanvas.getBoundingClientRect();
+        var selectedColour = 0;
+
+        colourCanvas.addEventListener('click', e => {
+            var mouseX = e.clientX - colourRect.left;
+            var mouseY = e.clientY - colourRect.top;
+            var i;
+            for(i=0; i < colours.length; i++) {
+                x = 30 + (i*5) + (i*40)
+                y = 10
+
+                if(mouseX >= x && mouseX <= x + 40) {
+                    if(mouseY >= y && mouseY <= y + 40) {
+                        selectedColour = i;         
+                    }
+                }
+            }
+            drawColours();
+        });
+
+        function drawColours() {
+            var i;
+            for(i=0; i<colours.length; i++) {
+                colourContext.fillStyle = colours[i];
+                x = 30 + (i*5) + (i*40);
+                y = 10;
+                colourContext.fillRect(x, y, 40, 40);
+                colourContext.strokeStyle = 'gray';
+                colourContext.strokeRect(x, y, 40, 40);
+                if(i == selectedColour) {
+                    colourContext.strokeStyle = 'green';
+                    colourContext.strokeRect(x, y, 40, 40);
+                }
+            }
+        }
+        
+
+        //
+        // Beads
+        //
+        const rows = 20;
+        const cols = 20;
+        const beads = [];
+        const radius = 10;
+        const xOffset = 50;
+        const yOffset = 50;
+        const beadCanvas = document.getElementById("beads");
+        const beadContext = beadCanvas.getContext("2d");
+        const beadRect = beadCanvas.getBoundingClientRect();
+
+        function initBeads() {
+            var row, col;
+            for(row=0; row < rows; row++) {
+                beads[row] = [];
+                for(col=0; col < cols; col++) {
+                    beads[row][col] = "white";
+                }
+            }
+        }
+    
+        
+        beadCanvas.addEventListener('click', e => {
+            var mouseX = e.clientX - beadRect.left;
+            var mouseY = e.clientY - beadRect.top;
+            for(row=0; row < beads[0].length; row++) {
+                for(col=0; col < beads[row].length; col++) {
+                    var xShift = 0;
+                    if(row % 2 == 0) {
+                        xShift = radius;
+                    }
+                    var x = xShift + xOffset + (radius * 2 * col);
+                    var y = yOffset + (radius * 2 * row);
+                    if(mouseX <= x + radius && mouseX > x - radius) {
+                        if(mouseY <= y + radius && mouseY > y - radius) {
+                            beads[row][col] = colours[selectedColour];               
+                        }
+                    }
+                    
+                }
+            }
+            drawBeads();
+        });
+
+
+        function drawBeads() {
+            var row = 0;
+            var col = 0;
+            
+            for(row=0; row < rows; row++) {
+                for(col=0; col < cols; col++) {
+                    var xShift = 0;
+                    if(row % 2 == 0) {
+                        xShift = radius;
+                    }
+                    
+                    var x = xShift + xOffset + (radius * 2 * col);
+                    var y = yOffset + (radius * 2 * row);
+                    beadContext.beginPath();
+                    beadContext.arc(x, y, radius, 0, 2 * Math.PI);
+                    beadContext.fillStyle = beads[row][col];
+                    beadContext.fill();
+                    beadContext.stroke(); 
+                }
+            }
+        }
+
+        drawColours();
+        initBeads();
+        drawBeads();
+    </script>
+</body>
+</html>
